@@ -36,7 +36,8 @@ img{width:100%;border:1px solid #ccc}.cover{text-align:center;padding-top:160px}
 <li>Validate the DFA (missing, duplicate or invalid transitions).</li>
 <li>Detect and remove unreachable states.</li>
 <li>Apply partition refinement step by step to find equivalent states.</li>
-<li>Generate the transition table of the minimised DFA.</li></ul>
+<li>Generate the transition table and state diagram of the minimised DFA.</li>
+<li>Test input strings on both the original and minimised DFA and compare results.</li></ul>
 <h2>1.4 Automata Specification</h2>
 <h3>Deterministic Finite Automaton</h3>
 <p>A DFA is represented by the five-tuple:</p><p><b>M = (Q, Σ, δ, q₀, F)</b></p>
@@ -85,13 +86,14 @@ img{width:100%;border:1px solid #ccc}.cover{text-align:center;padding-top:160px}
 <h2>3.1 System Design</h2>
 <p>We developed a web-based simulator in which the user defines a DFA, the system validates it, removes unreachable states, refines partitions until they are stable, and displays the minimised DFA.</p>
 <h2>3.2 System Architecture</h2>
-<p>The simulator consists of five modules:</p>
+<p>The simulator consists of six modules:</p>
 <table><tr><th>Module</th><th>Function (in script.js)</th></tr>
 <tr><td>Input Module</td><td>Reads states, alphabet, start, final states and transitions (<code>parseList</code>, <code>parseDFA</code>)</td></tr>
 <tr><td>Validation Module</td><td>Checks unknown states/symbols, duplicate and missing transitions (<code>parseDFA</code>)</td></tr>
 <tr><td>Reachability Module</td><td>Finds states reachable from the start state using BFS (<code>reachableStates</code>)</td></tr>
 <tr><td>Minimisation Module</td><td>Partition refinement until stable (<code>refine</code>, <code>signature</code>)</td></tr>
-<tr><td>Visualisation Module</td><td>Renders tables, partition cards and the minimal DFA (<code>renderTransitionTable</code>, <code>renderStepCards</code>, <code>renderMinimized</code>)</td></tr></table>
+<tr><td>Visualisation Module</td><td>Renders tables, partition cards, SVG state diagrams and the minimal DFA (<code>renderDiagram</code>, <code>renderStepCards</code>, <code>renderMinimized</code>)</td></tr>
+<tr><td>Testing Module</td><td>Traces input strings through both DFAs and checks all short strings (<code>trace</code>, <code>runTest</code>, <code>renderEquivalenceCheck</code>)</td></tr></table>
 <p><b>System Architecture Diagram:</b></p>
 <div class="flow"><div class="box">User Interface (index.html + style.css)</div><div class="arrow">↓</div>
 <div class="row"><div class="box">Input Module</div><div class="box">Validation Module</div></div><div class="arrow">↓</div>
@@ -118,7 +120,9 @@ img{width:100%;border:1px solid #ccc}.cover{text-align:center;padding-top:160px}
 <li>Buttons: Minimise DFA, Load example, Clear results.</li>
 <li>Section 01: Input DFA verification and transition table.</li>
 <li>Section 02: Partition refinement steps with Previous / Next / Show all.</li>
-<li>Section 03: Minimised DFA with equivalence classes and transition table.</li></ul>
+<li>Section 02 also shows a live state diagram whose states are coloured by their current group.</li>
+<li>Section 03: Original and minimised state diagrams side by side, equivalence classes and transition table.</li>
+<li>Section 04: String tester showing the path in both machines, accept/reject, and an automatic check of all short strings.</li></ul>
 <p><b>Screenshot of the simulator:</b></p><img src="ui.png" alt="Simulator screenshot">
 <h2>3.6 Functionality Achieved</h2>
 <p>The simulator lets users construct, validate and minimise a DFA in a single web page. It shows not only the final result but also every intermediate partition, which is our main goal.</p>
@@ -202,5 +206,5 @@ OUTPUT: Equivalence classes (minimal DFA states)
 <li>The number of minimal states equals the number of Myhill–Nerode equivalence classes computed by brute force, so the result is truly minimal.</li></ol>
 <p><b>Result: 500 passed, 0 failed.</b></p>
 <h2>4.6 Conclusion and Future Scope</h2>
-<p>The simulator correctly minimises DFAs and explains each step of partition refinement. Possible future additions: a graphical state diagram, an input-string tester inside the page, Hopcroft's algorithm for very large DFAs, and NFA-to-DFA conversion before minimisation.</p>
+<p>The simulator correctly minimises DFAs, explains each step of partition refinement with colour-coded state diagrams, and lets users verify the result by testing strings on both machines. Possible future additions: drag-to-edit state diagrams, Hopcroft's algorithm for very large DFAs, and NFA-to-DFA conversion before minimisation.</p>
 </body></html>

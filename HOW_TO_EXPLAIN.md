@@ -28,7 +28,8 @@ Takes a DFA and gives the smallest equivalent DFA, showing every step.
    - P2 {A} {D,E} {B} {C} {F} – A splits (goes to B and C), D and E go to same groups
    - Stable – nothing changes
 4. Section 03: 7 → 5 states. D and E merged.
-5. Show an error: delete one transition line, click Minimise → "Missing transition".
+5. Section 04: type `0110` → path shown in both machines, both Accept. Badge: all strings up to length 8 match.
+6. Show an error: delete one transition line, click Minimise → "Missing transition".
 
 ## Likely viva questions
 - **Why remove unreachable states first?** They can never be reached from start, so they don't affect the language.
@@ -38,4 +39,4 @@ Takes a DFA and gives the smallest equivalent DFA, showing every step.
 - **Complexity?** O(n² · |Σ|) for this (Moore's) method. Hopcroft's is O(n |Σ| log n).
 - **Is the minimal DFA unique?** Yes, up to renaming states (Myhill–Nerode theorem).
 - **How do you know it's correct?** Hand-solved example matches, plus 500 random DFAs tested: same language and state count = Myhill–Nerode classes.
-- **Limitations?** Only complete DFAs (no NFA, no missing transitions), no state-diagram drawing, no string tester in the UI.
+- **Limitations?** Only complete DFAs (no NFA, no missing transitions); diagrams use a fixed circular layout (not draggable).
