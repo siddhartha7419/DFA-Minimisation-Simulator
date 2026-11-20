@@ -1,0 +1,206 @@
+<!doctype html><html><head><meta charset="utf-8"><title>DFA Minimisation Simulator Report</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.5;color:#111;max-width:760px;margin:auto;padding:30px}
+h1{font-size:24pt;font-weight:normal;margin:34px 0 10px;page-break-before:always}h1.first{page-break-before:avoid}
+h2{font-size:15pt;font-weight:normal;margin:22px 0 6px}h3{font-size:12pt;margin:14px 0 4px}
+table{border-collapse:collapse;margin:10px 0;width:100%}td,th{border:1px solid #888;padding:5px 9px;text-align:left;vertical-align:top}th{background:#f1f1f1}
+pre{background:#f6f6f6;border:1px solid #ddd;padding:10px;font-size:10pt;line-height:1.4;page-break-inside:avoid}
+.flow{display:flex;flex-direction:column;align-items:center;gap:4px;margin:12px 0;page-break-inside:avoid}
+.box{border:1.5px solid #4b3a8c;background:#efeaf8;border-radius:8px;padding:6px 16px;text-align:center;min-width:280px;font-size:10pt}
+.box small{display:block;color:#555}.arrow{font-size:14pt;color:#4b3a8c;line-height:1}.dec{background:#fde9d9;border-color:#c0703a}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.row .box{min-width:0;flex:1}
+img{width:100%;border:1px solid #ccc}.cover{text-align:center;padding-top:160px}.cover h1{font-size:30pt;page-break-before:avoid}
+</style></head><body>
+
+<div class="cover">
+<h1 class="first">DFA MINIMISATION SIMULATOR</h1>
+<p style="font-size:14pt">Automata Theory Project Report</p>
+<p style="font-size:12pt">Automata Theory and Computability (CSCT 302)</p>
+<p style="margin-top:60px"><b>Prepared by</b></p>
+<table style="width:70%;margin:auto"><tr><th>Name</th><th>Enrollment Number</th></tr>
+<tr><td>Siddhartha Tikaigari</td><td>S24CSCU1740</td></tr>
+<tr><td>Ayush Bharadwaj</td><td>S24CSCU0132</td></tr></table>
+<p style="margin-top:30px"><b>Submitted to:</b> Ms. Priti Gupta</p>
+<p style="font-size:13pt;margin-top:30px"><b>Bennett University</b></p>
+</div>
+
+<h1>1. Problem Definition and Automata Specification</h1>
+<h2>1.1 Introduction</h2>
+<p>A Deterministic Finite Automaton (DFA) is a finite-state machine that accepts or rejects strings over an input alphabet. For every state and every input symbol, a DFA has exactly one next state. Many different DFAs can accept the same language, and some of them contain more states than necessary.</p>
+<p>DFA minimisation converts a given DFA into an equivalent DFA with the smallest possible number of states. This project develops an interactive web-based simulator that performs DFA minimisation and shows every step of the process.</p>
+<h2>1.2 Problem Statement</h2>
+<p>Minimising a DFA by hand is error-prone. Students must find unreachable states, identify equivalent states, repeatedly split partitions and then rebuild the transition table. With more states and symbols, it becomes easy to merge two states that are actually distinguishable, or to miss a split.</p>
+<p>Our simulator automates this process and displays each partition-refinement step so users can understand how the minimal DFA is formed.</p>
+<h2>1.3 Objectives</h2>
+<ul><li>Allow users to enter states, alphabet, start state, final states and transitions.</li>
+<li>Validate the DFA (missing, duplicate or invalid transitions).</li>
+<li>Detect and remove unreachable states.</li>
+<li>Apply partition refinement step by step to find equivalent states.</li>
+<li>Generate the transition table of the minimised DFA.</li></ul>
+<h2>1.4 Automata Specification</h2>
+<h3>Deterministic Finite Automaton</h3>
+<p>A DFA is represented by the five-tuple:</p><p><b>M = (Q, Σ, δ, q₀, F)</b></p>
+<p>Where:</p><ul><li>Q: Finite set of states</li><li>Σ: Input alphabet</li><li>δ: Transition function, Q × Σ → Q</li><li>q₀: Initial state, q₀ ∈ Q</li><li>F: Set of final (accepting) states, F ⊆ Q</li></ul>
+<h3>Equivalent States</h3>
+<p>Two states p and q are <b>equivalent</b> (p ≡ q) if, for every string w ∈ Σ*, δ*(p, w) ∈ F exactly when δ*(q, w) ∈ F. If some string w leads one state to a final state and the other to a non-final state, the states are <b>distinguishable</b>.</p>
+<h3>Minimal DFA</h3>
+<p>The minimal DFA M' = (Q', Σ, δ', q₀', F') has one state for each equivalence class [q] of reachable states, with δ'([q], a) = [δ(q, a)], q₀' = [q₀] and F' = {[q] : q ∈ F}. By the Myhill–Nerode theorem, this DFA is unique up to renaming of states.</p>
+<h2>1.5 Inputs and Expected Outputs</h2>
+<table><tr><th>Inputs</th><th>Expected Outputs</th></tr>
+<tr><td>Set of states</td><td>Validation result</td></tr>
+<tr><td>Input alphabet</td><td>Original transition table</td></tr>
+<tr><td>Start state and final states</td><td>List of unreachable states removed</td></tr>
+<tr><td>Transition function (state, symbol → next state)</td><td>Step-by-step partitions</td></tr>
+<tr><td></td><td>Minimised DFA transition table and state reduction summary</td></tr></table>
+<h2>1.6 Scope and Expected Outcome</h2>
+<p>The simulator supports complete deterministic finite automata with any number of states and any alphabet. NFAs and partial DFAs are outside the current scope; the simulator reports missing transitions as errors.</p>
+<p>The expected outcome is a simple browser-based educational tool that makes DFA minimisation easier to understand and removes errors in manual minimisation.</p>
+
+<h1>2. Existing Tools and Feasibility Analysis</h1>
+<h2>2.1 Existing Tools</h2>
+<h3>1. JFLAP</h3><p>JFLAP is a widely used desktop tool for automata. It supports DFA minimisation using a tree of state splits. However, it requires Java installation and is a general-purpose tool, so the minimisation steps are mixed with many other features.</p>
+<h3>2. Online automata simulators (e.g. AutomataVerse, FSM simulators)</h3><p>These provide graphical editing and string simulation. Some offer minimisation, but most show only the final minimal DFA rather than each refinement round.</p>
+<h2>2.2 Comparison with Existing Tools</h2>
+<table><tr><th>Feature</th><th>Existing Tools</th><th>Our Simulator</th></tr>
+<tr><td>DFA input and validation</td><td>Available</td><td>Available, with exact error messages</td></tr>
+<tr><td>Unreachable state removal</td><td>Varies by tool</td><td>Included and reported</td></tr>
+<tr><td>Step-by-step partition refinement</td><td>Not a primary feature</td><td>Included, with Previous / Next controls</td></tr>
+<tr><td>Explanation of each split</td><td>Rarely</td><td>Included</td></tr>
+<tr><td>Installation required</td><td>Java (JFLAP)</td><td>None, runs in any browser</td></tr></table>
+<h2>2.3 Technologies Used</h2>
+<table><tr><th>Technology</th><th>Purpose</th></tr>
+<tr><td>HTML5</td><td>Page structure and input forms</td></tr>
+<tr><td>CSS3</td><td>Styling, layout and responsive design</td></tr>
+<tr><td>JavaScript (ES6)</td><td>Parsing, validation and minimisation algorithm</td></tr>
+<tr><td>Node.js</td><td>Automated correctness tests</td></tr>
+<tr><td>GitHub</td><td>Version control and team collaboration</td></tr></table>
+<h2>2.4 Feasibility Analysis</h2>
+<p><b>Technical Feasibility:</b> DFA minimisation follows a well-defined algorithm (partition refinement). It runs in polynomial time and is easily implemented in plain JavaScript with no external libraries.</p>
+<p><b>Operational Feasibility:</b> The simulator is a static web page, so users only need a browser. No server, database or installation is needed.</p>
+<p><b>Economic Feasibility:</b> All tools used are free and open source, so the project has no development cost.</p>
+<h2>2.5 Proposed Improvement</h2>
+<p>Our focus is understanding, not only the answer. Instead of showing just the final DFA, the simulator shows the initial partition, every refinement round with the reason for each split, and a mapping from each minimal state to the original states it replaces.</p>
+
+<h1>3. Simulator Design and Methodology</h1>
+<h2>3.1 System Design</h2>
+<p>We developed a web-based simulator in which the user defines a DFA, the system validates it, removes unreachable states, refines partitions until they are stable, and displays the minimised DFA.</p>
+<h2>3.2 System Architecture</h2>
+<p>The simulator consists of five modules:</p>
+<table><tr><th>Module</th><th>Function (in script.js)</th></tr>
+<tr><td>Input Module</td><td>Reads states, alphabet, start, final states and transitions (<code>parseList</code>, <code>parseDFA</code>)</td></tr>
+<tr><td>Validation Module</td><td>Checks unknown states/symbols, duplicate and missing transitions (<code>parseDFA</code>)</td></tr>
+<tr><td>Reachability Module</td><td>Finds states reachable from the start state using BFS (<code>reachableStates</code>)</td></tr>
+<tr><td>Minimisation Module</td><td>Partition refinement until stable (<code>refine</code>, <code>signature</code>)</td></tr>
+<tr><td>Visualisation Module</td><td>Renders tables, partition cards and the minimal DFA (<code>renderTransitionTable</code>, <code>renderStepCards</code>, <code>renderMinimized</code>)</td></tr></table>
+<p><b>System Architecture Diagram:</b></p>
+<div class="flow"><div class="box">User Interface (index.html + style.css)</div><div class="arrow">↓</div>
+<div class="row"><div class="box">Input Module</div><div class="box">Validation Module</div></div><div class="arrow">↓</div>
+<div class="row"><div class="box">Reachability Module (BFS)</div><div class="box">Minimisation Module (Partition Refinement)</div></div><div class="arrow">↓</div>
+<div class="box">Visualisation Module<small>Transition tables · Partition steps · Minimal DFA</small></div></div>
+<h2>3.3 Working Methodology</h2>
+<ol><li>The user enters the states, alphabet, start state and final states.</li>
+<li>The user enters transitions, one per line, in the form <code>state, symbol -&gt; next</code>.</li>
+<li>The system validates the DFA and reports any errors.</li>
+<li>Unreachable states are found by BFS from the start state and removed.</li>
+<li>Reachable states are split into final and non-final groups.</li>
+<li>Groups are repeatedly split until no group changes.</li>
+<li>Each final group becomes one state of the minimised DFA.</li></ol>
+<h2>3.4 System Flowchart</h2>
+<p><b>Start → Enter DFA → Validate → Remove Unreachable States → Initial Partition → Refine Partitions → Stable? → Build Minimal DFA → Display → End</b></p>
+<p>If validation fails, the user is asked to correct the DFA. If a partition changes, refinement repeats.</p>
+<div class="flow"><div class="box">Start</div><div class="arrow">↓</div><div class="box">Enter DFA Details<small>(States, Alphabet, Start, Finals, Transitions)</small></div><div class="arrow">↓</div>
+<div class="box dec">Valid DFA?<small>No → show errors and re-enter</small></div><div class="arrow">↓ Yes</div>
+<div class="box">Remove Unreachable States</div><div class="arrow">↓</div><div class="box">Initial Partition P₀ = {F, Q − F}</div><div class="arrow">↓</div>
+<div class="box">Split groups by transition signature</div><div class="arrow">↓</div><div class="box dec">Partition changed?<small>Yes → refine again</small></div><div class="arrow">↓ No</div>
+<div class="box">Build Minimal DFA from groups</div><div class="arrow">↓</div><div class="box">Display tables and steps</div><div class="arrow">↓</div><div class="box">End</div></div>
+<h2>3.5 User Interface</h2>
+<ul><li>Automaton configuration panel (states, alphabet, start, finals, transitions).</li>
+<li>Buttons: Minimise DFA, Load example, Clear results.</li>
+<li>Section 01: Input DFA verification and transition table.</li>
+<li>Section 02: Partition refinement steps with Previous / Next / Show all.</li>
+<li>Section 03: Minimised DFA with equivalence classes and transition table.</li></ul>
+<p><b>Screenshot of the simulator:</b></p><img src="ui.png" alt="Simulator screenshot">
+<h2>3.6 Functionality Achieved</h2>
+<p>The simulator lets users construct, validate and minimise a DFA in a single web page. It shows not only the final result but also every intermediate partition, which is our main goal.</p>
+
+<h1>4. Algorithm Selection and Correctness</h1>
+<h2>4.1 Selected Algorithm</h2>
+<p>We use <b>Moore's partition refinement algorithm</b> (equivalent to the k-equivalence method taught in class), preceded by unreachable-state removal.</p>
+<h3>1. Remove unreachable states</h3><p>Starting from q₀, perform breadth-first search over all transitions. States never visited cannot affect the language and are removed.</p>
+<h3>2. Partition refinement</h3><ol><li>Start with P₀ = {F, Q − F} (0-equivalence).</li>
+<li>For each group, compute each state's <i>signature</i>: the group index of its destination on each symbol.</li>
+<li>States with different signatures are split into separate groups.</li>
+<li>Repeat until a full pass causes no split (Pₖ = Pₖ₊₁).</li>
+<li>Each group of the final partition becomes one state of the minimal DFA.</li></ol>
+<h3>Why this algorithm</h3><table><tr><th>Algorithm</th><th>Time</th><th>Remark</th></tr>
+<tr><td>Table filling (Myhill–Nerode)</td><td>O(n² · |Σ|)</td><td>Easy by hand, but less visual</td></tr>
+<tr><td>Moore partition refinement (used)</td><td>O(n² · |Σ|)</td><td>Each round is easy to display and explain</td></tr>
+<tr><td>Hopcroft</td><td>O(n · |Σ| · log n)</td><td>Fastest, but steps are harder to follow</td></tr></table>
+<h2>4.2 Algorithm Pseudocode</h2>
+<p><b>Algorithm 1: Reachable States</b></p>
+<pre>INPUT: DFA M = (Q, Σ, δ, q0, F)
+OUTPUT: Set R of reachable states
+
+1. R = {q0}; queue = [q0]
+2. while queue is not empty:
+       s = queue.removeFirst()
+       for each a in Σ:
+           t = δ(s, a)
+           if t not in R: add t to R and queue
+3. return R</pre>
+<p><b>Algorithm 2: Partition Refinement</b></p>
+<pre>INPUT: DFA M, reachable states R
+OUTPUT: Equivalence classes (minimal DFA states)
+
+1. P = { R ∩ F , R − F }        // remove empty groups
+2. repeat:
+       changed = false; newP = []
+       for each group G in P:
+           split G into buckets by
+               signature(q) = [ index of group containing δ(q,a) for each a in Σ ]
+           if more than one bucket: changed = true
+           add all buckets to newP
+       P = newP
+   until changed = false
+3. For each group G: create state [G]
+       δ'([G], a) = [ δ(any q in G, a) ]
+       start = [q0]; finals = groups containing a final state
+4. return minimal DFA</pre>
+<h2>4.3 Manually Solved Example</h2>
+<p>Consider the DFA with states {A, B, C, D, E, F, G}, alphabet {0, 1}, start state A and final states {C, F}.</p>
+<p><b>Original Transition Table</b></p>
+<table><tr><th>State</th><th>Input 0</th><th>Input 1</th></tr>
+<tr><td>→A</td><td>B</td><td>C</td></tr><tr><td>B</td><td>A</td><td>D</td></tr><tr><td>*C</td><td>E</td><td>F</td></tr><tr><td>D</td><td>E</td><td>F</td></tr><tr><td>E</td><td>E</td><td>F</td></tr><tr><td>*F</td><td>F</td><td>F</td></tr><tr><td>G</td><td>G</td><td>G</td></tr></table>
+<p>(→ start state, * final state)</p>
+<p><b>Step 1: Remove unreachable states.</b> From A we reach B, C; from B we reach D; from C/D we reach E, F. G is never reached, so G is removed.</p>
+<p><b>Step 2: Initial partition P₀.</b> Non-final: {A, B, D, E}; Final: {C, F}.</p>
+<p><b>Step 3: Refinement round 1.</b> Signatures with respect to P₀ (group 1 = non-final, group 2 = final):</p>
+<table><tr><th>State</th><th>On 0</th><th>On 1</th><th>Signature</th></tr>
+<tr><td>A</td><td>B (1)</td><td>C (2)</td><td>(1, 2)</td></tr><tr><td>B</td><td>A (1)</td><td>D (1)</td><td>(1, 1)</td></tr>
+<tr><td>D</td><td>E (1)</td><td>F (2)</td><td>(1, 2)</td></tr><tr><td>E</td><td>E (1)</td><td>F (2)</td><td>(1, 2)</td></tr>
+<tr><td>C</td><td>E (1)</td><td>F (2)</td><td>(1, 2)</td></tr><tr><td>F</td><td>F (2)</td><td>F (2)</td><td>(2, 2)</td></tr></table>
+<p>P₁ = {A, D, E}, {B}, {C}, {F}</p>
+<p><b>Step 4: Refinement round 2.</b> With groups 1 = {A,D,E}, 2 = {B}, 3 = {C}, 4 = {F}: A → (B, C) = (2, 3), while D → (E, F) = (1, 4) and E → (E, F) = (1, 4). So A splits from D and E.</p>
+<p>P₂ = {A}, {D, E}, {B}, {C}, {F}</p>
+<p><b>Step 5: Round 3.</b> D and E still have the same signature (both go to {D,E} on 0 and {F} on 1). No group splits, so P₃ = P₂ is stable.</p>
+<p><b>Minimised DFA</b></p>
+<table><tr><th>Minimal State</th><th>Original States</th><th>Input 0</th><th>Input 1</th></tr>
+<tr><td>→Q0</td><td>A</td><td>Q2</td><td>Q3</td></tr><tr><td>Q1</td><td>D, E</td><td>Q1</td><td>Q4</td></tr>
+<tr><td>Q2</td><td>B</td><td>Q0</td><td>Q1</td></tr><tr><td>*Q3</td><td>C</td><td>Q1</td><td>Q4</td></tr><tr><td>*Q4</td><td>F</td><td>Q4</td><td>Q4</td></tr></table>
+<p>Result: 7 states → 5 states (1 unreachable state removed, 1 pair of equivalent states D, E merged). This matches the simulator's output exactly.</p>
+<h2>4.4 Validation Using Input Strings</h2>
+<table><tr><th>Input</th><th>Original DFA path</th><th>Result</th><th>Minimal DFA path</th><th>Result</th></tr>
+<tr><td>0110</td><td>A→B→D→F→F</td><td>Accept</td><td>Q0→Q2→Q1→Q4→Q4</td><td>Accept</td></tr>
+<tr><td>1</td><td>A→C</td><td>Accept</td><td>Q0→Q3</td><td>Accept</td></tr>
+<tr><td>10</td><td>A→C→E</td><td>Reject</td><td>Q0→Q3→Q1</td><td>Reject</td></tr>
+<tr><td>00</td><td>A→B→A</td><td>Reject</td><td>Q0→Q2→Q0</td><td>Reject</td></tr>
+<tr><td>0001</td><td>A→B→A→B→D</td><td>Reject</td><td>Q0→Q2→Q0→Q2→Q1</td><td>Reject</td></tr></table>
+<p><b>Validation Result:</b> Both machines give the same accept/reject result for every test string.</p>
+<h2>4.5 Automated Testing</h2>
+<p>We also wrote an automated test (<code>tests/verify.mjs</code>) that runs the simulator's own code on <b>500 randomly generated DFAs</b> (2–8 states, alphabets {0,1} and {a,b,c}). For each DFA it checks that:</p>
+<ol><li>The minimised DFA accepts exactly the same strings as the original (all strings up to length 8 for binary, 5 for ternary alphabets).</li>
+<li>The number of minimal states equals the number of Myhill–Nerode equivalence classes computed by brute force, so the result is truly minimal.</li></ol>
+<p><b>Result: 500 passed, 0 failed.</b></p>
+<h2>4.6 Conclusion and Future Scope</h2>
+<p>The simulator correctly minimises DFAs and explains each step of partition refinement. Possible future additions: a graphical state diagram, an input-string tester inside the page, Hopcroft's algorithm for very large DFAs, and NFA-to-DFA conversion before minimisation.</p>
+</body></html>

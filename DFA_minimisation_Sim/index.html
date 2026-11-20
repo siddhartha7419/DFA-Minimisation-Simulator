@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DFA Minimisation Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">δ</div>
+        <div>
+          <div class="brand-title">DFA Minimisation</div>
+          <div class="brand-subtitle">Automata Theory Simulator</div>
+        </div>
+      </div>
+      <nav class="nav"><a href="#s1">Verify</a><a href="#s2">Refine</a><a href="#s3">Result</a><a href="#tester">Test</a></nav>
+      <div class="status-pill"><span class="status-dot"></span>Interactive Mode</div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-badge">THEORY → VISUALIZATION</div>
+      <h1>DFA Minimisation<br><span>Simulator</span></h1>
+      <p>Build a deterministic finite automaton, refine state partitions, and inspect the equivalent minimal DFA.</p>
+    </section>
+
+    <section class="control-panel">
+      <div class="panel-title">
+        <div class="panel-icon">⚙</div>
+        <div>
+          <h2>Automaton Configuration</h2>
+          <p>Define the states, alphabet, start state, final states and transition function.</p>
+        </div>
+      </div>
+      <div class="config-grid">
+        <div class="input-group"><label for="states">STATES (comma separated)</label><input id="states"
+            value="A, B, C, D, E, F"></div>
+        <div class="input-group"><label for="alphabet">ALPHABET</label><input id="alphabet" value="0, 1"></div>
+        <div class="input-group"><label for="start">START STATE</label><input id="start" value="A"></div>
+        <div class="input-group"><label for="finals">FINAL STATES</label><input id="finals" value="C, F"></div>
+      </div>
+      <div class="input-group transition-input">
+        <label for="transitions">TRANSITIONS — one per line, format: state, symbol → next state</label>
+        <textarea id="transitions" spellcheck="false">A, 0 -> B
+A, 1 -> C
+B, 0 -> A
+B, 1 -> D
+C, 0 -> E
+C, 1 -> F
+D, 0 -> E
+D, 1 -> F
+E, 0 -> E
+E, 1 -> F
+F, 0 -> F
+F, 1 -> F</textarea>
+        <div class="hint">Every state-symbol pair must have exactly one destination. Use <code>-></code> or
+          <code>→</code>.
+        </div>
+      </div>
+      <div class="control-buttons">
+        <button class="btn btn-primary" id="runBtn">▶ Minimise DFA</button>
+        <button class="btn btn-secondary" id="exampleBtn">↻ Load example</button>
+        <button class="btn btn-ghost" id="clearBtn">Clear results</button>
+      </div>
+    </section>
+
+    <section class="section-card" id="s1">
+      <div class="section-heading">
+        <div class="step-badge">01</div>
+        <div>
+          <h2>Input DFA Verification</h2>
+          <p>Check the transition function and identify reachable states.</p>
+        </div>
+      </div>
+      <div id="verification">
+        <div class="empty-state">
+          <div class="empty-icon">Σ</div>Enter an automaton and run minimisation to begin.
+        </div>
+      </div>
+      <div class="split"><div id="inputTable" class="table-wrap"></div><div id="inputDiagram"></div></div>
+    </section>
+
+    <section class="section-card" id="s2">
+      <div class="section-heading">
+        <div class="step-badge">02</div>
+        <div>
+          <h2>Partition Refinement</h2>
+          <p>Separate final and non-final states, then split distinguishable groups.</p>
+        </div>
+      </div>
+      <div id="partitionIntro"></div>
+      <div id="stepDiagram"></div>
+      <div id="partitionSteps" class="steps"></div>
+      <div class="step-controls" id="stepControls" hidden>
+        <button class="btn btn-secondary" id="prevStep">← Previous</button>
+        <span id="stepCounter">Step 1</span>
+        <button class="btn btn-primary" id="nextStep">Next step →</button>
+        <button class="btn btn-ghost" id="allSteps">Show all</button>
+      </div>
+    </section>
+
+    <section class="section-card" id="s3">
+      <div class="section-heading">
+        <div class="step-badge">03</div>
+        <div>
+          <h2>Minimised DFA</h2>
+          <p>Each final partition becomes one state in the equivalent minimal DFA.</p>
+        </div>
+      </div>
+      <div id="compareDiagrams" class="diagram-pair"></div>
+      <div id="minimizedResult">
+        <div class="empty-state">
+          <div class="empty-icon">◎</div>Your minimized automaton will appear here.
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card" id="tester" hidden>
+      <div class="section-heading">
+        <div class="step-badge">04</div>
+        <div>
+          <h2>Test a String</h2>
+          <p>Run the same input through both machines and watch the path they take.</p>
+        </div>
+      </div>
+      <div class="tester-row">
+        <input id="testString" placeholder="e.g. 0110" spellcheck="false" aria-label="Input string">
+        <button class="btn btn-primary" id="testBtn">▶ Run</button>
+      </div>
+      <div id="testResult"></div>
+      <div id="traceDiagrams" class="diagram-pair"></div>
+      <div id="equivCheck"></div>
+    </section>
+
+    <section class="section-card theory-card">
+      <div class="section-heading">
+        <div class="step-badge">δ</div>
+        <div>
+          <h2>DFA Minimisation Method</h2>
+          <p>What the simulator does at each stage.</p>
+        </div>
+      </div>
+      <div class="conditions-grid">
+        <div class="condition">
+          <div class="condition-number">01</div>
+          <div><strong>Remove unreachable states</strong>
+            <p>Only states reachable from the start state can affect the language.</p>
+          </div>
+        </div>
+        <div class="condition">
+          <div class="condition-number">02</div>
+          <div><strong>Initial partition</strong>
+            <p>Split the reachable states into final and non-final groups.</p>
+          </div>
+        </div>
+        <div class="condition">
+          <div class="condition-number">03</div>
+          <div><strong>Refine partitions</strong>
+            <p>States stay together only if each symbol leads to the same partition.</p>
+          </div>
+        </div>
+        <div class="condition">
+          <div class="condition-number">04</div>
+          <div><strong>Repeat until stable</strong>
+            <p>Continue splitting groups until another pass makes no changes.</p>
+          </div>
+        </div>
+        <div class="condition">
+          <div class="condition-number">05</div>
+          <div><strong>Build quotient DFA</strong>
+            <p>Replace every equivalent group with one state and map its transitions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="legend-card">
+      <div class="legend-title">Visualization Legend</div>
+      <div class="legend-items">
+        <div class="legend-item"><span class="legend-box legend-start">→</span>Start state</div>
+        <div class="legend-item"><span class="legend-box legend-final">◎</span>Final state</div>
+        <div class="legend-item"><span class="legend-box legend-group">A</span>Partition group</div>
+        <div class="legend-item"><span class="legend-box legend-split">↗</span>Refinement / split</div>
+      </div>
+    </section>
+    <footer><span>DFA Minimisation Simulator</span><span class="footer-dot">•</span>Automata Theory<span
+        class="footer-dot">•</span>Interactive Learning Tool</footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
